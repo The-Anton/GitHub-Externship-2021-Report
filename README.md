@@ -107,16 +107,29 @@ I need to improve my caching and make a real-time leaderboard. In order to imple
  
 The majority of the eighth week was devoted to code review and testing. Despite being incomplete, the first basic version was ready for deployment on the testing domain. I had some trouble deploying it because we used a Monorepo project structure, but I eventually figured it out by writing some prebuilt scripts and utilizing yarn workspaces.
 
-<img align="center" src="https://user-images.githubusercontent.com/51144829/135298236-f4f6e4bd-d9c8-4830-a6d0-b478df288a72.png">
+<img align="center"  src="https://user-images.githubusercontent.com/51144829/135298236-f4f6e4bd-d9c8-4830-a6d0-b478df288a72.png">
+
+**Testing version deployment - [Fellows](https://fellows-incubate.herokuapp.com/home)**
+ 
+
+<p align="center">
+<img align="center"  width=70% src="https://user-images.githubusercontent.com/51144829/135296772-569122ab-4d8a-40a2-9ac4-fd9d9180af4e.png">
+</p>
+
+<p align="center">
+	<b>Dashboard</b>
+</p>
+
+<p align="center">
+<img align="center" width=70% src="https://user-images.githubusercontent.com/51144829/135296815-32c8d48e-dac7-4ea4-8b05-8c1a9aae87af.png">
+</p>
+
+<p align="center">
+	<b>Home Page</b>
+</p>
 
 
-<img align="center" src="https://user-images.githubusercontent.com/51144829/135296772-569122ab-4d8a-40a2-9ac4-fd9d9180af4e.png">
 
-<img align="center" src="https://user-images.githubusercontent.com/51144829/135296815-32c8d48e-dac7-4ea4-8b05-8c1a9aae87af.png">
-
-
-
-**Testing version deployment - Fellows** (fellows-incubate.herokuapp.com)
  
  
 **Week 9**: Fellows API and caching
@@ -132,8 +145,9 @@ This type of Leaderboard is a great example of real-time analytics in action, as
  
 You can even index your score, but on a larger scale, this approach falls short, so I used Redis Database to solve this problem because Redis is internally designed to provide linear or constant time query results, making it the ideal choice for building a real-time leaderboard. Redis has a built-in data structure called Sorted Sets (ZSETs) that makes creating and manipulating leaderboards simple. The built-in Sorted Set commands make it simple to perform quick native sorting and reporting operations.
 
+<p align="center">
 <img align="center" src="https://user-images.githubusercontent.com/51144829/135297456-2c49978a-6540-4871-a553-73d72719b005.png">
-
+</p>
 
 The "ZRANGE" command, for example, returns a set of members. The time complexity will be O(log(N)+M), where N is the number of elements in the sorted set and M is the number of elements returned.
  
@@ -141,17 +155,17 @@ The "ZRANGE" command, for example, returns a set of members. The time complexity
  
 We can only store scores and Id of the organization in the sorted set. This is not very useful so a separate Hash data structure was used to store organization details.
  
-<div text-align="center">
+<p align="center">
 <img  src="https://user-images.githubusercontent.com/51144829/135297464-dc5667bb-5873-4000-966f-da458f2367c0.png">
-</div>
+</p>
  
 The main issue I encountered was that storing ranks in a sorted set and organization details in a Hash data structure added an additional overhead on the server to perform union on both datasets and return it to the client. Assume we have a sorted set of 1000 organizations with their details in HASH (which is not in order). A simple approach is that every time we retrieve a range of rankings, we query all the ids of elements in the sorted set in HASH and retrieve it from Redis. In the worst-case scenario, even if we had around 1000 organizations, we would have to make an additional two network round trips for each organization, totaling 2000 round trips. This is when a single API call is made; imagine if there were thousands of users. 
  
 I pipelined all of the queries and operations to solve this problem. This was also insufficient to reduce the number of operations, so we wrote a Lua script that will run on the Redis and reduce the number of round trips from 2000 to two.
 
-<div text-align="center">
+<p align="center">
 <img src="https://user-images.githubusercontent.com/51144829/135298425-5c072beb-a351-4958-ac9f-3506512949ed.png">
-</div>
+</p>
  
 
 
@@ -190,13 +204,13 @@ Here is the list of Commits and PRs that I created during GitHub externship
 
 | PR Link | Commit | Description | Status |
 |---|---|---|---|
-| #5  | [#21bde28](https://github.com/incubateind/fellows/pull/5/commits/21bde2881f3d2e6def3d74c1bf29f2639f62e200) | Chore: Updated Backend package readme  | Merged ✅  |
-| #9 | [#7df2126](https://github.com/incubateind/fellows/pull/9/commits/7df2126affe3f2b82a82d8bb34592941133e701e) | Feat: Third-party OAuth implementation with storage of auth data  | Merged ✅  |
-| #10  | [#44792ca](https://github.com/incubateind/fellows/pull/10/commits/44792ca7b4b266c14a8cfaaec68d67d49476716b) | Fix: LinkedIn incorrect user schema and undefined profile data response  | Merged ✅  |
-| #14  | [#62f4f56](https://github.com/incubateind/fellows/pull/14/commits/62f4f56c38f5ee3066554ed50f1c5c5d513e847e)  | Chore: ESlint, husky, prettier, and hooks added  | Merged ✅ |
-| #16  | [#1d06df9](https://github.com/incubateind/fellows/pull/16/commits/1d06df9a63ece35bbfab399692ed90eb5cb1784b) [#65daf2d](https://github.com/incubateind/fellows/pull/16/commits/65daf2db85c74b709361b0922097f720b6146825)   |  Merge: Merge develop branch | Merged ✅ |
-| #19  | [#a749622](https://github.com/incubateind/fellows/pull/19/commits/a7496223c932b1c3ea421a73f94cc4fb7cd49936)  [#744c4fe](https://github.com/incubateind/fellows/pull/19/commits/744c4fe003d2bec78279c6c66e184e9798358a2f)  [#68c0b6d](https://github.com/incubateind/fellows/pull/19/commits/68c0b6d27ca43d0933a3c2a15f3bed930fdbc515)  [#c2b42ee](https://github.com/incubateind/fellows/pull/19/commits/c2b42ee4e5d9c00f81255bc8f3f047204a92d977) |  Redis database setup Data migration scheduler Lua script for internal database operation Leaderboard API for organization ranking | Merged ✅  |
-| #20  | [#d05aaa6](https://github.com/incubateind/fellows/pull/20/commits/d05aaa6fe28ee31c5475cc5a46c3f60eb6a9844a) | Feat: Community API route with pagination support  | Merged ✅  | 
+| [#5](https://github.com/incubateind/fellows/pull/5)  | [#21bde28](https://github.com/incubateind/fellows/pull/5/commits/21bde2881f3d2e6def3d74c1bf29f2639f62e200) | Chore: Updated Backend package readme  | Merged ✅  |
+| [#9](https://github.com/incubateind/fellows/pull/9) | [#7df2126](https://github.com/incubateind/fellows/pull/9/commits/7df2126affe3f2b82a82d8bb34592941133e701e) | Feat: Third-party OAuth implementation with storage of auth data  | Merged ✅  |
+| [#10](https://github.com/incubateind/fellows/pull/10)  | [#44792ca](https://github.com/incubateind/fellows/pull/10/commits/44792ca7b4b266c14a8cfaaec68d67d49476716b) | Fix: LinkedIn incorrect user schema and undefined profile data response  | Merged ✅  |
+| [#14](https://github.com/incubateind/fellows/pull/14)  | [#62f4f56](https://github.com/incubateind/fellows/pull/14/commits/62f4f56c38f5ee3066554ed50f1c5c5d513e847e)  | Chore: ESlint, husky, prettier, and hooks added  | Merged ✅ |
+| [#16](https://github.com/incubateind/fellows/pull/16)  | [#1d06df9](https://github.com/incubateind/fellows/pull/16/commits/1d06df9a63ece35bbfab399692ed90eb5cb1784b) [#65daf2d](https://github.com/incubateind/fellows/pull/16/commits/65daf2db85c74b709361b0922097f720b6146825)   |  Merge: Merge develop branch | Merged ✅ |
+| [#19](https://github.com/incubateind/fellows/pull/19)| [#a749622](https://github.com/incubateind/fellows/pull/19/commits/a7496223c932b1c3ea421a73f94cc4fb7cd49936)  [#744c4fe](https://github.com/incubateind/fellows/pull/19/commits/744c4fe003d2bec78279c6c66e184e9798358a2f)  [#68c0b6d](https://github.com/incubateind/fellows/pull/19/commits/68c0b6d27ca43d0933a3c2a15f3bed930fdbc515)  [#c2b42ee](https://github.com/incubateind/fellows/pull/19/commits/c2b42ee4e5d9c00f81255bc8f3f047204a92d977) |  Redis database setup Data migration scheduler Lua script for internal database operation Leaderboard API for organization ranking | Merged ✅  |
+| [#20](https://github.com/incubateind/fellows/pull/20)  | [#d05aaa6](https://github.com/incubateind/fellows/pull/20/commits/d05aaa6fe28ee31c5475cc5a46c3f60eb6a9844a) | Feat: Community API route with pagination support  | Merged ✅  | 
 
 
 
